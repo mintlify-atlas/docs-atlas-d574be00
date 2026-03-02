@@ -1,0 +1,56 @@
+{
+  "projectType": "general",
+  "projectName": "Skills Marketplace",
+  "projectDescription": "A collection of Claude Code skills distributed as a plugin marketplace for enhanced developer productivity.",
+  "theme": "palm",
+  "primaryColor": "#6366f1",
+  "lightColor": "#818cf8",
+  "darkColor": "#4f46e5",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Available Skills",
+        "pages": [
+          "skills/overview",
+          "skills/github-write-pr-message"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/using-skills",
+          "guides/contributing",
+          "guides/creating-skills"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/marketplace-structure",
+          "reference/plugin-format",
+          "reference/skill-format"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Plugin marketplace system for Claude Code skills",
+    "GitHub PR message generation from git context",
+    "Template detection and auto-fill capabilities",
+    "Extensible skill architecture",
+    "Easy installation via slash commands"
+  ],
+  "publicApiSurface": [
+    "/plugin marketplace add fuongz/skills",
+    "/plugin install github-write-pr-message@fuongz-skills",
+    "/github-write-pr-message [context]"
+  ]
+}
