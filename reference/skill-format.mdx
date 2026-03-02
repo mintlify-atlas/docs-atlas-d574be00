@@ -1,0 +1,216 @@
+---
+title: Skill format
+description: Reference documentation for SKILL.md structure, frontmatter fields, and special syntax
+---
+
+Skills are defined using Markdown files named `SKILL.md`. Each skill file contains YAML frontmatter for metadata and Markdown content that provides instructions to Claude.
+
+## File location
+
+Skill files must be located at:
+
+```
+plugins/your-plugin-name/skills/skill-name/SKILL.md
+```
+
+## YAML frontmatter
+
+Every `SKILL.md` file must begin with YAML frontmatter containing metadata about the skill.
+
+<ParamField path="description" type="string" required>
+  A clear description of what the skill does and when it should be used. This is critical for skill discovery and Claude's ability to invoke the skill at the right time.
+  
+  Should include:
+  - What the skill does
+  - When to use it (trigger conditions)
+  - Example user phrases that should invoke this skill
+</ParamField>
+
+<ParamField path="argument-hint" type="string">
+  Hint text shown to the user about what arguments they can provide when invoking the skill. Displayed in brackets when the skill is selected.
+  
+  Examples:
+  - `"[context or focus area]"`
+  - `"[file path]"`
+  - `"[branch name]"`
+</ParamField>
+
+### Frontmatter example
+
+```yaml
+---
+description: Generate a GitHub Pull Request message following GitHub's PR template guidelines. Use when the user wants to create a PR, write a pull request description, or asks to summarize changes for a PR.
+argument-hint: "[context or focus area]"
+---
+```
+
+## Markdown content
+
+The content after the frontmatter contains instructions for Claude. This can include:
+
+- Step-by-step workflows
+- Context gathering instructions
+- Output format specifications
+- Examples and guidelines
+
+### Special syntax
+
+#### Command execution: !\`command\`
+
+Use `!\`command\`` to execute shell commands and inject their output into the skill context. This is commonly used for gathering git context.
+
+**Example:**
+
+```markdown
+## Git Context
+
+- Branch: !`git branch --show-current`
+- Commits: !`git log main..HEAD --oneline`
+- Changed files: !`git diff --name-status main..HEAD`
+- Diff: !`git diff main..HEAD`
+```
+
+When Claude loads this skill, these commands are executed and their output is injected into the context.
+
+#### Fallback commands
+
+You can chain commands with `||` to provide fallbacks:
+
+```markdown
+!`git diff main..HEAD 2>/dev/null || git diff master..HEAD 2>/dev/null || git diff HEAD~1..HEAD`
+```
+
+This tries `main` first, then `master`, then falls back to comparing with the previous commit.
+
+#### Argument injection: $ARGUMENTS
+
+Use `$ARGUMENTS` to reference user-provided arguments:
+
+```markdown
+**Additional context (optional):** $ARGUMENTS
+```
+
+If the user invokes the skill with arguments, they'll be injected here.
+
+## Complete example
+
+Here's the complete `SKILL.md` from the `github-write-pr-message` skill:
+
+```markdown
+---
+description: Generate a GitHub Pull Request message following GitHub's PR template guidelines. Use when the user wants to create a PR, write a pull request description, or asks to summarize changes for a PR.
+argument-hint: "[context or focus area]"
+---
+
+# GitHub Pull Request Message Generator
+
+Generate a well-structured GitHub Pull Request message following GitHub's official PR template guidelines.
+
+**Additional context (optional):** $ARGUMENTS
+
+## Git Context
+
+- Branch: !`git branch --show-current`
+- Commits: !`git log main..HEAD --oneline 2>/dev/null || git log master..HEAD --oneline 2>/dev/null || git log --oneline -10`
+- Changed files: !`git diff --name-status main..HEAD 2>/dev/null || git diff --name-status master..HEAD 2>/dev/null || git diff --name-status HEAD~1..HEAD`
+- Diff: !`git diff main..HEAD 2>/dev/null || git diff master..HEAD 2>/dev/null || git diff HEAD~1..HEAD`
+
+## Workflow
+
+### 1. Detect PR Template
+
+Check for existing PR templates (in priority order):
+
+1. `.github/pull_request_template.md`
+2. `.github/PULL_REQUEST_TEMPLATE/*.md`
+3. `docs/pull_request_template.md`
+4. `pull_request_template.md`
+
+If found, use it as the structure and fill all sections. If not found, use the **Default PR Structure** below.
+
+### 2. Analyze the Changes
+
+- **What changed**: Files modified, added, or deleted
+- **Why it changed**: Purpose from commit messages, branch name, and diff
+- **Impact**: Areas of the codebase affected
+- **Related issues**: Extract issue numbers from branch name (e.g. `fix/123-bug`) or commit messages
+
+### 3. Generate the PR Message
+
+#### Default PR Structure
+
+```markdown
+## Summary
+
+<!-- Brief description of what this PR does and why -->
+
+## Changes
+
+-
+-
+
+## Related Issues
+
+Closes #<issue-number>
+
+## Type of Change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Refactoring
+- [ ] Documentation update
+- [ ] Performance improvement
+- [ ] Test addition or update
+
+## Testing
+
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manually tested
+
+## Screenshots / Demo
+
+## Checklist
+
+- [ ] Self-review completed
+- [ ] Code follows project style guidelines
+- [ ] No new warnings introduced
+- [ ] Tests added where applicable
+- [ ] Dependent changes merged and published
+```
+
+### 4. Output Format
+
+Present in this order:
+
+1. **PR Title** — Imperative mood, 50–72 chars, conventional commit prefix if used (`feat:`, `fix:`, `chore:`, etc.)
+2. **PR Body** — Full markdown ready to paste into GitHub or use with `gh pr create`
+3. **Reviewer suggestions** — (Optional) `@mentions` based on changed files
+
+### Title Guidelines
+
+**Good:**
+- `fix: resolve null pointer in user authentication`
+- `feat: add dark mode support to settings panel`
+
+**Bad:** `Fix bug`, `Changes`, `WIP`
+
+### GitHub Rules
+
+- Use closing keywords (`Closes`, `Fixes`, `Resolves`) + `#issue-number` to auto-close issues on merge
+- Fill all template sections — do not omit any
+- If multiple templates exist in `.github/PULL_REQUEST_TEMPLATE/`, present as options and use the most relevant
+
+---
+
+Output the PR title and body in a code block for easy copy-paste or use with `gh pr create`.
+```
+
+## Best practices
+
+1. **Clear trigger conditions** - Make the `description` field specific about when the skill should be used
+2. **Gather context efficiently** - Use `!\`command\`` to gather necessary context without requiring manual input
+3. **Provide fallbacks** - Use command chaining (`||`) to handle different repository configurations
+4. **Structure workflows clearly** - Use numbered steps and clear headings to guide Claude through the process
+5. **Include examples** - Show good and bad examples to improve output quality

@@ -1,0 +1,57 @@
+---
+title: Available skills
+description: Browse and discover skills you can install to extend Claude Code's capabilities
+---
+
+Skills are specialized capabilities that help Claude Code perform specific tasks more effectively. Each skill provides domain-specific instructions, workflows, and commands that enhance Claude's ability to assist you.
+
+## Featured skills
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub PR message generator"
+    icon="github"
+    href="/skills/github-write-pr-message"
+  >
+    Generate well-structured GitHub Pull Request messages from your git diff and commit history
+  </Card>
+</CardGroup>
+
+## Skill categories
+
+Skills are organized by category to help you find what you need:
+
+### GitHub
+
+Tools for working with GitHub workflows, pull requests, and repository management.
+
+- [GitHub PR message generator](/skills/github-write-pr-message) - Generate PR descriptions following template guidelines
+
+## Installing skills
+
+Skills are distributed through plugin packages. To install a skill:
+
+```bash
+/plugin install <plugin-name>@<marketplace-owner>
+```
+
+For example, to install the GitHub PR message generator:
+
+```bash
+/plugin install github-write-pr-message@fuongz-skills
+```
+
+Once installed, you can invoke skills using their slash commands:
+
+```bash
+/<skill-name> [arguments]
+```
+
+## Skill tags
+
+Browse skills by common tags:
+
+- **git** - Git repository operations and workflows
+- **github** - GitHub-specific integrations
+- **pull-request** - PR creation and management
+- **productivity** - Tools to streamline your workflow

@@ -1,0 +1,237 @@
+---
+title: GitHub PR message generator
+description: Generate well-structured GitHub Pull Request messages from your current git diff and commit history
+icon: github
+---
+
+The GitHub PR message generator skill helps you create professional, well-structured pull request descriptions that follow GitHub's official PR template guidelines.
+
+## What it does
+
+This skill analyzes your git changes and generates a complete PR message including:
+
+- A clear, descriptive title following conventional commit format
+- Structured PR body with all required sections
+- Automatic issue linking from branch names or commits
+- Type of change categorization
+- Testing checklist items
+
+The skill automatically detects and uses your repository's existing PR template, ensuring consistency across your team.
+
+## Installation
+
+Install the skill from the fuongz-skills marketplace:
+
+```bash
+/plugin install github-write-pr-message@fuongz-skills
+```
+
+## Usage
+
+### Basic usage
+
+Generate a PR message from your current changes:
+
+```bash
+/github-write-pr-message
+```
+
+This will analyze:
+- Your current branch name
+- All commits since branching from main/master
+- Changed files and their diff
+- Existing PR templates in your repository
+
+### With context
+
+Provide additional focus or context:
+
+```bash
+/github-write-pr-message focus on the auth changes
+```
+
+```bash
+/github-write-pr-message emphasize performance improvements
+```
+
+The optional argument helps the skill prioritize certain aspects of your changes in the generated message.
+
+## Features
+
+### Automatic template detection
+
+The skill searches for PR templates in priority order:
+
+<Steps>
+  <Step title="Check .github/pull_request_template.md">
+    First checks the standard GitHub PR template location
+  </Step>
+  
+  <Step title="Check .github/PULL_REQUEST_TEMPLATE/*.md">
+    Looks for multiple template options in the templates directory
+  </Step>
+  
+  <Step title="Check docs/pull_request_template.md">
+    Falls back to documentation directory
+  </Step>
+  
+  <Step title="Check pull_request_template.md">
+    Finally checks the repository root
+  </Step>
+  
+  <Step title="Use default structure">
+    If no template is found, uses GitHub's recommended default structure
+  </Step>
+</Steps>
+
+### Smart change analysis
+
+The skill analyzes your changes across multiple dimensions:
+
+- **What changed** - Files modified, added, or deleted
+- **Why it changed** - Purpose extracted from commit messages and branch name
+- **Impact** - Areas of the codebase affected
+- **Related issues** - Extracts issue numbers from branch names like `fix/123-bug` or commit messages
+
+### Issue linking
+
+Automatically generates closing keywords for issue references:
+
+<CodeGroup>
+```markdown Example with issue number
+Closes #123
+```
+
+```markdown Multiple issues
+Closes #123
+Fixes #456
+```
+</CodeGroup>
+
+<Note>
+The skill uses GitHub's closing keywords (`Closes`, `Fixes`, `Resolves`) to ensure issues are automatically closed when the PR is merged.
+</Note>
+
+### Type of change detection
+
+Automatically categorizes your PR:
+
+- Bug fix
+- New feature
+- Breaking change
+- Refactoring
+- Documentation update
+- Performance improvement
+- Test addition or update
+
+## Output format
+
+The skill generates three components:
+
+<Steps>
+  <Step title="PR title">
+    Imperative mood, 50-72 characters, with conventional commit prefix if your project uses them
+    
+    **Good examples:**
+    - `fix: resolve null pointer in user authentication`
+    - `feat: add dark mode support to settings panel`
+    
+    **Bad examples:**
+    - `Fix bug`
+    - `Changes`
+    - `WIP`
+  </Step>
+  
+  <Step title="PR body">
+    Complete markdown-formatted description ready to paste into GitHub or use with `gh pr create`
+  </Step>
+  
+  <Step title="Reviewer suggestions (optional)">
+    Suggested reviewers with `@mentions` based on changed files
+  </Step>
+</Steps>
+
+## Workflow
+
+When you invoke the skill, it follows this workflow:
+
+1. **Gather git context** - Collects current branch, commits, changed files, and full diff
+2. **Detect PR template** - Searches for existing templates in your repository
+3. **Analyze changes** - Understands what changed and why
+4. **Generate message** - Creates a structured PR description with all sections filled
+5. **Format for GitHub** - Outputs markdown in a code block for easy copy-paste
+
+## Default PR structure
+
+When no template is found, the skill uses this recommended structure:
+
+```markdown
+## Summary
+
+<!-- Brief description of what this PR does and why -->
+
+## Changes
+
+-
+-
+
+## Related Issues
+
+Closes #<issue-number>
+
+## Type of Change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Refactoring
+- [ ] Documentation update
+- [ ] Performance improvement
+- [ ] Test addition or update
+
+## Testing
+
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manually tested
+
+## Screenshots / Demo
+
+## Checklist
+
+- [ ] Self-review completed
+- [ ] Code follows project style guidelines
+- [ ] No new warnings introduced
+- [ ] Tests added where applicable
+- [ ] Dependent changes merged and published
+```
+
+## Tips for best results
+
+<Note>
+**Write descriptive commit messages** - The skill extracts purpose and context from your commit history, so clear commit messages lead to better PR descriptions.
+</Note>
+
+<Note>
+**Use conventional branch naming** - Include issue numbers in branch names like `fix/123-auth-bug` to enable automatic issue linking.
+</Note>
+
+<Note>
+**Review and customize** - The generated message is a starting point. Review and adjust it to match your team's specific needs and the PR's unique context.
+</Note>
+
+## Integration with gh CLI
+
+The output is formatted to work seamlessly with GitHub's CLI:
+
+```bash
+gh pr create --title "<generated-title>" --body "<generated-body>"
+```
+
+## Metadata
+
+- **Version:** 1.0.0
+- **Author:** fuongz
+- **License:** MIT
+- **Repository:** [https://github.com/fuongz/skills](https://github.com/fuongz/skills)
+- **Keywords:** git, github, pull-request, pr, productivity

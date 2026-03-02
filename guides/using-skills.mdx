@@ -1,0 +1,130 @@
+---
+title: Using skills
+description: Learn how to invoke and use skills from the marketplace
+---
+
+Skills are invoked using slash commands in Claude Code. Once installed, they enhance Claude's capabilities with specialized workflows and instructions.
+
+## Invoking skills
+
+Skills are invoked using slash commands that match the skill name:
+
+```shell
+/skill-name
+```
+
+For example, to use the `github-write-pr-message` skill:
+
+```shell
+/github-write-pr-message
+```
+
+<Tip>
+You can see all available skills in your workspace by typing `/` in the chat.
+</Tip>
+
+## Passing arguments to skills
+
+Many skills accept optional arguments to provide additional context or customize behavior:
+
+```shell
+/skill-name your arguments here
+```
+
+### Real example: github-write-pr-message
+
+The `github-write-pr-message` skill accepts optional context:
+
+```shell
+/github-write-pr-message
+```
+
+Or with specific focus:
+
+```shell
+/github-write-pr-message focus on the auth changes
+```
+
+The argument `focus on the auth changes` is passed to the skill and used to emphasize specific aspects of your changes when generating the PR message.
+
+## How skills work
+
+<Steps>
+  <Step title="Invoke the skill">
+    Type the slash command in Claude Code's chat interface.
+  </Step>
+  
+  <Step title="Skill loads instructions">
+    Claude loads the skill's specialized instructions and workflow from the `SKILL.md` file.
+  </Step>
+  
+  <Step title="Execute commands">
+    If the skill includes shell commands (prefixed with `!`), Claude executes them to gather context. For example, `github-write-pr-message` runs git commands to analyze your changes.
+  </Step>
+  
+  <Step title="Follow workflow">
+    Claude follows the skill's defined workflow to complete the task.
+  </Step>
+</Steps>
+
+## What skills can do
+
+Skills can:
+
+- Execute shell commands to gather context (e.g., `git diff`, `git log`)
+- Access your workspace files and directories
+- Follow multi-step workflows with decision points
+- Generate structured outputs (like PR messages, documentation, or code)
+- Detect and use existing templates or configurations
+
+### Example workflow: github-write-pr-message
+
+When you invoke `/github-write-pr-message`, the skill:
+
+1. Reads your current branch name
+2. Gets commit history: `git log main..HEAD --oneline`
+3. Lists changed files: `git diff --name-status main..HEAD`
+4. Retrieves the full diff: `git diff main..HEAD`
+5. Checks for existing PR templates in `.github/`, `docs/`, or repo root
+6. Analyzes changes to understand what changed and why
+7. Generates a PR title and body following GitHub conventions
+8. Outputs a ready-to-paste message compatible with `gh pr create`
+
+## Best practices
+
+<Tip>
+Provide context in your arguments to get more tailored results. Instead of just `/github-write-pr-message`, try `/github-write-pr-message emphasize performance improvements`.
+</Tip>
+
+### Be specific with arguments
+
+When a skill accepts arguments, use them to guide the output:
+
+- **Generic**: `/github-write-pr-message`
+- **Specific**: `/github-write-pr-message focus on breaking changes to the API`
+
+### Check skill descriptions
+
+Before using a skill, check its description to understand:
+
+- What arguments it accepts (check the `argument-hint` in the skill metadata)
+- What commands it will run
+- What files it will access
+
+### Review outputs
+
+Skills automate workflows but may need your review:
+
+- Verify generated content matches your intent
+- Edit outputs as needed before using them
+- Provide feedback by refining your arguments and re-running the skill
+
+## Finding installed skills
+
+List all installed skills:
+
+```shell
+/plugin list
+```
+
+This shows all plugins and skills available in your current workspace.

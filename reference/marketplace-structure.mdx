@@ -1,0 +1,120 @@
+---
+title: Marketplace structure
+description: Reference documentation for marketplace.json structure and fields
+---
+
+The `marketplace.json` file defines the metadata and plugin listings for a Skills Marketplace. It must be located at `.claude-plugin/marketplace.json` in the root of your marketplace repository.
+
+## File location
+
+```
+.claude-plugin/
+  marketplace.json
+```
+
+## Schema
+
+<ParamField path="name" type="string" required>
+  The unique identifier for your marketplace. Use kebab-case naming.
+</ParamField>
+
+<ParamField path="owner" type="object" required>
+  Information about the marketplace owner.
+  
+  <ParamField path="owner.name" type="string" required>
+    The GitHub username or organization name of the marketplace owner.
+  </ParamField>
+</ParamField>
+
+<ParamField path="metadata" type="object" required>
+  Metadata about the marketplace.
+  
+  <ParamField path="metadata.description" type="string" required>
+    A brief description of the marketplace and its purpose.
+  </ParamField>
+</ParamField>
+
+<ParamField path="plugins" type="array" required>
+  An array of plugin definitions available in this marketplace.
+  
+  <ParamField path="plugins[].name" type="string" required>
+    The unique identifier for the plugin. Must match the plugin directory name.
+  </ParamField>
+  
+  <ParamField path="plugins[].source" type="string" required>
+    Relative path to the plugin directory from the marketplace root.
+  </ParamField>
+  
+  <ParamField path="plugins[].description" type="string" required>
+    A brief description of what the plugin does.
+  </ParamField>
+  
+  <ParamField path="plugins[].version" type="string" required>
+    Semantic version number (e.g., "1.0.0").
+  </ParamField>
+  
+  <ParamField path="plugins[].author" type="object" required>
+    Information about the plugin author.
+    
+    <ParamField path="plugins[].author.name" type="string" required>
+      The name or username of the plugin author.
+    </ParamField>
+  </ParamField>
+  
+  <ParamField path="plugins[].homepage" type="string">
+    URL to the plugin or marketplace homepage.
+  </ParamField>
+  
+  <ParamField path="plugins[].repository" type="string">
+    URL to the source code repository.
+  </ParamField>
+  
+  <ParamField path="plugins[].license" type="string">
+    SPDX license identifier (e.g., "MIT", "Apache-2.0").
+  </ParamField>
+  
+  <ParamField path="plugins[].keywords" type="array">
+    Array of keywords for search and discovery.
+  </ParamField>
+  
+  <ParamField path="plugins[].category" type="string">
+    Primary category for the plugin (e.g., "github", "productivity").
+  </ParamField>
+  
+  <ParamField path="plugins[].tags" type="array">
+    Array of tags for categorization and filtering.
+  </ParamField>
+</ParamField>
+
+## Example
+
+Here's a complete example of a `marketplace.json` file:
+
+```json
+{
+  "name": "fuongz-skills",
+  "owner": {
+    "name": "fuongz"
+  },
+  "metadata": {
+    "description": "A collection of Claude Code skills by fuongz."
+  },
+  "plugins": [
+    {
+      "name": "github-write-pr-message",
+      "source": "./plugins/github-write-pr-message",
+      "description": "Generate a well-structured GitHub Pull Request message from your current git diff and commit history.",
+      "version": "1.0.0",
+      "author": {
+        "name": "fuongz"
+      },
+      "homepage": "https://github.com/fuongz/skills",
+      "repository": "https://github.com/fuongz/skills",
+      "license": "MIT",
+      "keywords": ["git", "github", "pull-request", "pr", "productivity"],
+      "category": "github",
+      "tags": ["git", "github", "pull-request", "pr", "productivity"]
+    }
+  ]
+}
+```

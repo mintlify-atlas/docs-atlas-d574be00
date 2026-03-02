@@ -1,0 +1,186 @@
+---
+title: Contributing
+description: How to contribute new skills to the marketplace
+---
+
+The Skills Marketplace welcomes contributions from the community. This guide walks through the process of submitting new skills.
+
+## Before you start
+
+<Note>
+Make sure your skill provides clear value and doesn't duplicate existing functionality. Review the existing skills in the marketplace before creating a new one.
+</Note>
+
+## Repository structure requirements
+
+Skills are organized in a marketplace repository with this structure:
+
+```
+repository-root/
+├── .claude-plugin/
+│   └── marketplace.json          # Marketplace metadata
+├── plugins/
+│   └── your-skill-name/
+│       ├── .claude-plugin/
+│       │   └── plugin.json       # Plugin metadata
+│       └── skills/
+│           └── your-skill-name/
+│               └── SKILL.md      # Skill instructions
+└── README.md                     # Marketplace documentation
+```
+
+### Marketplace metadata
+
+The `.claude-plugin/marketplace.json` file defines the marketplace:
+
+```json
+{
+  "name": "marketplace-name",
+  "owner": {
+    "name": "your-username"
+  },
+  "metadata": {
+    "description": "A collection of Claude Code skills."
+  },
+  "plugins": [
+    {
+      "name": "your-skill-name",
+      "source": "./plugins/your-skill-name",
+      "description": "Brief description of what the skill does.",
+      "version": "1.0.0",
+      "author": {
+        "name": "your-username"
+      },
+      "homepage": "https://github.com/username/repo",
+      "repository": "https://github.com/username/repo",
+      "license": "MIT",
+      "keywords": ["keyword1", "keyword2"],
+      "category": "category-name",
+      "tags": ["tag1", "tag2"]
+    }
+  ]
+}
+```
+
+## How to contribute
+
+<Steps>
+  <Step title="Fork the marketplace repository">
+    Fork the Skills Marketplace repository on GitHub.
+  </Step>
+  
+  <Step title="Create your skill">
+    Follow the [Creating skills](/guides/creating-skills) guide to build your skill with proper structure.
+  </Step>
+  
+  <Step title="Add to marketplace.json">
+    Add your skill's metadata to `.claude-plugin/marketplace.json` in the `plugins` array.
+  </Step>
+  
+  <Step title="Update README">
+    Add documentation for your skill in the main `README.md`, including:
+    - Skill name and description
+    - Installation command
+    - Usage examples
+    - What the skill does
+  </Step>
+  
+  <Step title="Test locally">
+    Test your skill locally before submitting (see below).
+  </Step>
+  
+  <Step title="Submit a pull request">
+    Create a pull request with your changes. Include:
+    - Clear description of the skill's purpose
+    - Examples of usage
+    - Any dependencies or requirements
+  </Step>
+</Steps>
+
+## Testing locally
+
+Before submitting, test your skill in Claude Code:
+
+### Add your local marketplace
+
+```shell
+/plugin marketplace add /path/to/your/forked/repo
+```
+
+### Install your skill
+
+```shell
+/plugin install your-skill-name@your-marketplace-name
+```
+
+### Test the skill
+
+```shell
+/your-skill-name
+```
+
+Verify that:
+- The skill loads without errors
+- Shell commands execute correctly
+- The workflow produces expected results
+- Arguments are handled properly
+
+<Note>
+Test edge cases like missing git branches, empty diffs, or missing files that your skill might depend on.
+</Note>
+
+## Submission checklist
+
+Before submitting your pull request, ensure:
+
+- [ ] Skill follows the standard directory structure
+- [ ] `plugin.json` includes all required fields
+- [ ] `SKILL.md` has proper frontmatter with `description` and `argument-hint`
+- [ ] Skill is added to `marketplace.json`
+- [ ] README is updated with installation and usage examples
+- [ ] Skill has been tested locally
+- [ ] Code follows existing conventions
+- [ ] No sensitive data or credentials in files
+- [ ] License is specified (MIT recommended)
+
+## Contribution guidelines
+
+### Skill naming
+
+- Use lowercase with hyphens: `github-write-pr-message`
+- Be descriptive but concise
+- Avoid generic names like `helper` or `utility`
+
+### Documentation
+
+- Write clear, actionable descriptions
+- Include real usage examples
+- Document all accepted arguments
+- Explain what commands the skill runs
+
+### Code quality
+
+- Shell commands should handle errors gracefully
+- Use fallbacks when possible (e.g., checking both `main` and `master` branches)
+- Keep workflows focused on a single purpose
+- Comment complex logic in the SKILL.md
+
+## Getting help
+
+If you need help contributing:
+
+- Review existing skills for examples
+- Check the [Creating skills](/guides/creating-skills) guide
+- Open an issue in the marketplace repository for questions
+
+## What happens next
+
+After submitting your pull request:
+
+1. Maintainers will review your skill
+2. You may receive feedback or change requests
+3. Once approved, your skill will be merged
+4. Your skill becomes available in the marketplace
+5. Users can install it with `/plugin install`
+
+Thank you for contributing to the Skills Marketplace!

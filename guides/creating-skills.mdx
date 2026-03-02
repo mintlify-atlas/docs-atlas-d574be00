@@ -1,0 +1,383 @@
+---
+title: Creating skills
+description: Developer guide for building custom Claude Code skills
+---
+
+Skills extend Claude Code with specialized instructions and workflows. This guide shows you how to create skills from scratch.
+
+## Skill structure overview
+
+A skill consists of:
+
+1. **Plugin metadata** (`plugin.json`) - Defines the plugin container
+2. **Skill instructions** (`SKILL.md`) - Contains the workflow and instructions
+3. **Directory structure** - Organizes files following conventions
+
+## Directory structure
+
+Skills follow this standard structure:
+
+```
+your-skill-name/
+├── .claude-plugin/
+│   └── plugin.json          # Plugin metadata
+└── skills/
+    └── your-skill-name/
+        └── SKILL.md         # Skill instructions and workflow
+```
+
+### Example: github-write-pr-message
+
+```
+github-write-pr-message/
+├── .claude-plugin/
+│   └── plugin.json
+└── skills/
+    └── github-write-pr-message/
+        └── SKILL.md
+```
+
+## Creating plugin.json
+
+The `plugin.json` file defines basic plugin metadata:
+
+<Steps>
+  <Step title="Create .claude-plugin directory">
+    Create a `.claude-plugin` directory in your skill's root.
+  </Step>
+  
+  <Step title="Add plugin.json">
+    Create `plugin.json` with required fields.
+  </Step>
+</Steps>
+
+### plugin.json structure
+
+<CodeGroup>
+```json plugin.json
+{
+  "name": "your-skill-name",
+  "description": "Brief description of what your skill does.",
+  "version": "1.0.0"
+}
+```
+
+```json Example: github-write-pr-message
+{
+  "name": "github-write-pr-message",
+  "description": "Generate a well-structured GitHub Pull Request message from your current git diff and commit history.",
+  "version": "1.0.0"
+}
+```
+</CodeGroup>
+
+### Required fields
+
+<ParamField path="name" type="string" required>
+  The skill's identifier. Must match the directory name and use lowercase with hyphens.
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  A concise description of what the skill does. Used in skill listings.
+</ParamField>
+
+<ParamField path="version" type="string" required>
+  Semantic version number (e.g., `1.0.0`).
+</ParamField>
+
+## Creating SKILL.md
+
+The `SKILL.md` file contains the skill's instructions, workflow, and any shell commands to execute.
+
+<Steps>
+  <Step title="Create skills directory">
+    Create `skills/your-skill-name/` directory.
+  </Step>
+  
+  <Step title="Add SKILL.md with frontmatter">
+    Create `SKILL.md` starting with YAML frontmatter.
+  </Step>
+  
+  <Step title="Write the skill instructions">
+    Add instructions, workflow, and commands that Claude should follow.
+  </Step>
+</Steps>
+
+### SKILL.md format
+
+```markdown
+---
+description: When to use this skill and what it does
+argument-hint: "[optional context]"
+---
+
+# Skill Title
+
+Brief overview of the skill.
+
+**Additional context (optional):** $ARGUMENTS
+
+## Context Section
+
+Use !`command` to execute shell commands:
+
+- Field: !`shell command here`
+
+## Workflow
+
+Detailed step-by-step instructions for Claude to follow.
+
+### Output Format
+
+How the skill should present results to the user.
+```
+
+### Frontmatter fields
+
+<ParamField path="description" type="string" required>
+  Describes when Claude should use this skill. This appears in skill listings and helps Claude decide when to invoke it.
+</ParamField>
+
+<ParamField path="argument-hint" type="string">
+  A hint shown to users about what arguments the skill accepts. Use brackets to indicate optional parameters.
+</ParamField>
+
+### Example: github-write-pr-message frontmatter
+
+```yaml
+---
+description: Generate a GitHub Pull Request message following GitHub's PR template guidelines. Use when the user wants to create a PR, write a pull request description, or asks to summarize changes for a PR.
+argument-hint: "[context or focus area]"
+---
+```
+
+## Executing shell commands
+
+Skills can execute shell commands to gather context. Use the `!` prefix with backticks:
+
+```markdown
+- Branch: !`git branch --show-current`
+- Files changed: !`git diff --name-status main..HEAD`
+```
+
+### Command execution examples
+
+From `github-write-pr-message/SKILL.md`:
+
+```markdown
+## Git Context
+
+- Branch: !`git branch --show-current`
+- Commits: !`git log main..HEAD --oneline 2>/dev/null || git log master..HEAD --oneline 2>/dev/null || git log --oneline -10`
+- Changed files: !`git diff --name-status main..HEAD 2>/dev/null || git diff --name-status master..HEAD 2>/dev/null || git diff --name-status HEAD~1..HEAD`
+- Diff: !`git diff main..HEAD 2>/dev/null || git diff master..HEAD 2>/dev/null || git diff HEAD~1..HEAD`
+```
+
+<Tip>
+Use `2>/dev/null` to suppress errors and `||` for fallback commands. This makes skills more robust across different git setups.
+</Tip>
+
+## Using arguments
+
+Access user-provided arguments with `$ARGUMENTS`:
+
+```markdown
+**Additional context (optional):** $ARGUMENTS
+```
+
+When users invoke:
+
+```shell
+/your-skill focus on security changes
+```
+
+The text `focus on security changes` becomes available as `$ARGUMENTS` in your skill.
+
+## Writing effective workflows
+
+The workflow section guides Claude through your skill's logic:
+
+### Example workflow structure
+
+From `github-write-pr-message/SKILL.md`:
+
+```markdown
+## Workflow
+
+### 1. Detect PR Template
+
+Check for existing PR templates (in priority order):
+
+1. `.github/pull_request_template.md`
+2. `.github/PULL_REQUEST_TEMPLATE/*.md`
+3. `docs/pull_request_template.md`
+4. `pull_request_template.md`
+
+If found, use it as the structure and fill all sections. If not found, use the **Default PR Structure** below.
+
+### 2. Analyze the Changes
+
+- **What changed**: Files modified, added, or deleted
+- **Why it changed**: Purpose from commit messages, branch name, and diff
+- **Impact**: Areas of the codebase affected
+- **Related issues**: Extract issue numbers from branch name (e.g. `fix/123-bug`) or commit messages
+
+### 3. Generate the PR Message
+
+...
+```
+
+### Workflow best practices
+
+<Steps>
+  <Step title="Break down into clear steps">
+    Use numbered sections (1, 2, 3) or headings for each major step.
+  </Step>
+  
+  <Step title="Provide decision points">
+    Use "If... then... else..." logic to handle different scenarios.
+  </Step>
+  
+  <Step title="Include examples">
+    Show concrete examples of good and bad outputs.
+  </Step>
+  
+  <Step title="Specify output format">
+    Clearly define how results should be presented to the user.
+  </Step>
+</Steps>
+
+## Full example: github-write-pr-message
+
+Here's a complete skill example:
+
+<CodeGroup>
+```json .claude-plugin/plugin.json
+{
+  "name": "github-write-pr-message",
+  "description": "Generate a well-structured GitHub Pull Request message from your current git diff and commit history.",
+  "version": "1.0.0"
+}
+```
+
+```markdown skills/github-write-pr-message/SKILL.md
+---
+description: Generate a GitHub Pull Request message following GitHub's PR template guidelines. Use when the user wants to create a PR, write a pull request description, or asks to summarize changes for a PR.
+argument-hint: "[context or focus area]"
+---
+
+# GitHub Pull Request Message Generator
+
+Generate a well-structured GitHub Pull Request message following GitHub's official PR template guidelines.
+
+**Additional context (optional):** $ARGUMENTS
+
+## Git Context
+
+- Branch: !`git branch --show-current`
+- Commits: !`git log main..HEAD --oneline 2>/dev/null || git log master..HEAD --oneline 2>/dev/null || git log --oneline -10`
+- Changed files: !`git diff --name-status main..HEAD 2>/dev/null || git diff --name-status master..HEAD 2>/dev/null || git diff --name-status HEAD~1..HEAD`
+- Diff: !`git diff main..HEAD 2>/dev/null || git diff master..HEAD 2>/dev/null || git diff HEAD~1..HEAD`
+
+## Workflow
+
+### 1. Detect PR Template
+
+Check for existing PR templates (in priority order):
+
+1. `.github/pull_request_template.md`
+2. `.github/PULL_REQUEST_TEMPLATE/*.md`
+3. `docs/pull_request_template.md`
+4. `pull_request_template.md`
+
+If found, use it as the structure and fill all sections. If not found, use the **Default PR Structure** below.
+
+### 2. Analyze the Changes
+
+- **What changed**: Files modified, added, or deleted
+- **Why it changed**: Purpose from commit messages, branch name, and diff
+- **Impact**: Areas of the codebase affected
+- **Related issues**: Extract issue numbers from branch name (e.g. `fix/123-bug`) or commit messages
+
+### 3. Generate the PR Message
+
+...(workflow continues)
+```
+</CodeGroup>
+
+## Testing your skill
+
+After creating your skill:
+
+<Steps>
+  <Step title="Install locally">
+    Add your skill directory as a local plugin:
+    ```shell
+    /plugin install /path/to/your-skill-name
+    ```
+  </Step>
+  
+  <Step title="Test invocation">
+    Try invoking your skill:
+    ```shell
+    /your-skill-name
+    ```
+  </Step>
+  
+  <Step title="Test with arguments">
+    If your skill accepts arguments, test with various inputs:
+    ```shell
+    /your-skill-name some test context
+    ```
+  </Step>
+  
+  <Step title="Verify outputs">
+    Ensure the skill produces expected results and handles errors gracefully.
+  </Step>
+</Steps>
+
+## Common patterns
+
+### Fallback commands
+
+Handle different environments with fallback commands:
+
+```markdown
+- Data: !`primary-command 2>/dev/null || fallback-command`
+```
+
+### Conditional workflows
+
+Provide clear decision logic:
+
+```markdown
+### 1. Check for Configuration
+
+If config file exists, use it. Otherwise, use defaults.
+```
+
+### Structured output
+
+Define exactly how results should be formatted:
+
+```markdown
+### Output Format
+
+Present in this order:
+
+1. **Title** — 50-72 characters
+2. **Body** — Full markdown content
+3. **Additional info** — Any relevant notes
+```
+
+## Next steps
+
+Once your skill is ready:
+
+- Test thoroughly in different scenarios
+- Review the [Contributing guide](/guides/contributing) to submit to the marketplace
+- Share your skill with the community
+
+<Tip>
+Start by studying existing skills like `github-write-pr-message` to understand patterns and best practices.
+</Tip>

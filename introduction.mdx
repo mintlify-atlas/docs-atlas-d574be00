@@ -1,0 +1,57 @@
+---
+title: Skills Marketplace
+description: A collection of Claude Code skills distributed as a plugin marketplace
+---
+
+## Welcome to Skills Marketplace
+
+The Skills Marketplace is a curated collection of Claude Code skills by fuongz, designed to enhance your development workflow with powerful automation and intelligent code assistance.
+
+Skills are specialized tools that extend Claude Code's capabilities, allowing you to automate repetitive tasks, generate standardized content, and streamline your development process.
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Easy installation" icon="download">
+    Add the marketplace to Claude Code with a single command and install skills instantly.
+  </Card>
+  
+  <Card title="Git and GitHub integration" icon="github">
+    Generate well-structured PR messages from your git diff and commit history automatically.
+  </Card>
+  
+  <Card title="Template detection" icon="file-search">
+    Automatically detects and fills in existing PR templates from your repository.
+  </Card>
+  
+  <Card title="Smart analysis" icon="brain">
+    Analyzes branch names, commits, and code changes to generate meaningful descriptions.
+  </Card>
+</CardGroup>
+
+## Available skills
+
+### github-write-pr-message
+
+Generate a well-structured GitHub Pull Request message from your current git diff and commit history. This skill:
+
+- Reads your branch name, commits, changed files, and diff
+- Detects existing PR templates in `.github/`, `docs/`, or repo root and fills them in
+- Falls back to a default structure covering Summary, Changes, Related Issues, Type of Change, Testing, and a Checklist
+- Outputs a ready-to-paste PR title and body compatible with `gh pr create`
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="rocket" href="/installation">
+    Add the Skills Marketplace to Claude Code in seconds
+  </Card>
+  
+  <Card title="Quick start" icon="bolt" href="/quickstart">
+    Learn how to install and use your first skill
+  </Card>
+</CardGroup>
+
+## License
+
+All skills in this marketplace are released under the MIT License.

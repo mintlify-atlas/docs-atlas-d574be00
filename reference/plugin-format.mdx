@@ -1,0 +1,84 @@
+---
+title: Plugin format
+description: Reference documentation for plugin structure, plugin.json, and directory layout
+---
+
+A plugin is a collection of one or more skills packaged together. Each plugin must follow a specific directory structure and include a `plugin.json` metadata file.
+
+## Directory structure
+
+```
+plugins/
+  your-plugin-name/
+    .claude-plugin/
+      plugin.json          # Plugin metadata (required)
+    skills/
+      skill-name-1/
+        SKILL.md           # Skill definition (required)
+      skill-name-2/
+        SKILL.md
+```
+
+### Required files
+
+- **`.claude-plugin/plugin.json`** - Plugin metadata and configuration
+- **`skills/*/SKILL.md`** - At least one skill definition file
+
+### Directory naming conventions
+
+- Plugin directory names should use kebab-case
+- Skill directory names should use kebab-case
+- The plugin `name` in `plugin.json` should match the plugin directory name
+
+## plugin.json schema
+
+The `plugin.json` file defines the plugin's metadata and must be located at `.claude-plugin/plugin.json` within the plugin directory.
+
+<ParamField path="name" type="string" required>
+  The unique identifier for the plugin. Must match the plugin directory name and use kebab-case.
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  A clear, concise description of what the plugin does. This appears in marketplace listings.
+</ParamField>
+
+<ParamField path="version" type="string" required>
+  Semantic version number following semver format (e.g., "1.0.0").
+</ParamField>
+
+## Example plugin.json
+
+```json
+{
+  "name": "github-write-pr-message",
+  "description": "Generate a well-structured GitHub Pull Request message from your current git diff and commit history.",
+  "version": "1.0.0"
+}
+```
+
+## Complete plugin example
+
+Here's a complete example of the `github-write-pr-message` plugin structure:
+
+```
+plugins/github-write-pr-message/
+├── .claude-plugin/
+│   └── plugin.json
+└── skills/
+    └── github-write-pr-message/
+        └── SKILL.md
+```
+
+With `plugin.json`:
+
+```json
+{
+  "name": "github-write-pr-message",
+  "description": "Generate a well-structured GitHub Pull Request message from your current git diff and commit history.",
+  "version": "1.0.0"
+}
+```
+
+## Plugin metadata in marketplace.json
+
+While `plugin.json` contains the core plugin metadata, additional metadata (author, homepage, repository, license, keywords, category, tags) is defined in the marketplace's `marketplace.json` file. See the [Marketplace structure](/reference/marketplace-structure) reference for details.
